@@ -19,10 +19,6 @@ public class AccountService {
         return null;
     }
 
-    public BalanceResponseDTO getBalance(UUID uuid) {
-        return null;
-    }
-
     public void closeAccount(UUID uuid) {
 
     }
@@ -33,5 +29,9 @@ public class AccountService {
 
     public void updateBalances(@Valid UpdateBalancesRequestDTO request) {
 
+    }
+
+    public AccountResponseDTO getAccount(UUID uuid) {
+        return null;
     }
 }

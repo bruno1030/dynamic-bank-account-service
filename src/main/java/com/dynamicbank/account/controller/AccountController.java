@@ -1,12 +1,6 @@
 package com.dynamicbank.account.controller;
 
-import com.dynamicbank.account.dto.AccountSearchResultDTO;
-import com.dynamicbank.account.dto.AuthResponseDTO;
-import com.dynamicbank.account.dto.BalanceResponseDTO;
-import com.dynamicbank.account.dto.CreateAccountRequestDTO;
-import com.dynamicbank.account.dto.LoginRequestDTO;
-import com.dynamicbank.account.dto.SearchAccountsRequestDTO;
-import com.dynamicbank.account.dto.UpdateBalancesRequestDTO;
+import com.dynamicbank.account.dto.*;
 import com.dynamicbank.account.service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -42,9 +36,9 @@ public class AccountController {
 
     // ---- Protegidos por JWT (clientId vem sempre do token) ----
 
-    @GetMapping("/get-saldo")
-    public BalanceResponseDTO getSaldo(@AuthenticationPrincipal Jwt jwt) {
-        return accountService.getBalance(clientIdFrom(jwt));
+    @GetMapping("/get-account")
+    public AccountResponseDTO getAccount(@AuthenticationPrincipal Jwt jwt) {
+        return accountService.getAccount(clientIdFrom(jwt));
     }
 
     @PostMapping("/delete")
