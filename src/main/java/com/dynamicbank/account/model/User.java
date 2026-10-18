@@ -14,6 +14,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "full_name", nullable = false, unique = false, length = 150)
+    private String fullName;
+
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
@@ -25,13 +28,15 @@ public class User {
 
     public User() {}
 
-    public User(String username, String email, String passwordHash) {
+    public User(String fullName, String username, String email, String passwordHash) {
+        this.fullName = fullName;
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
     }
 
     public UUID getId() { return id; }
+    public String getFullName() { return fullName; }
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public String getPasswordHash() { return passwordHash; }
