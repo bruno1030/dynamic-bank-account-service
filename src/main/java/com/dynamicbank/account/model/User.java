@@ -1,14 +1,18 @@
 package com.dynamicbank.account.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "user_")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING, length = 10)
+@Getter
 @Setter
-public class User {
+public abstract class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,9 +39,4 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
-    public UUID getId() { return id; }
-    public String getFullName() { return fullName; }
-    public String getUsername() { return username; }
-    public String getEmail() { return email; }
-    public String getPasswordHash() { return passwordHash; }
 }
