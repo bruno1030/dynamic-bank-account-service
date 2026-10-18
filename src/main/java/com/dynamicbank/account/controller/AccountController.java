@@ -8,7 +8,6 @@ import com.dynamicbank.account.dto.LoginRequestDTO;
 import com.dynamicbank.account.dto.SearchAccountsRequestDTO;
 import com.dynamicbank.account.dto.UpdateBalancesRequestDTO;
 import com.dynamicbank.account.service.AccountService;
-import com.dynamicbank.account.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,11 +21,9 @@ import java.util.UUID;
 @RequestMapping("/accounts")
 public class AccountController {
 
-    private final UserService userService;
     private final AccountService accountService;
 
-    public AccountController(UserService userService, AccountService accountService) {
-        this.userService = userService;
+    public AccountController(AccountService accountService) {
         this.accountService = accountService;
     }
 
@@ -35,12 +32,12 @@ public class AccountController {
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponseDTO createAccount(@Valid @RequestBody CreateAccountRequestDTO request) {
-        return userService.create(request);
+        return accountService.create(request);
     }
 
     @PostMapping("/login")
     public AuthResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
-        return userService.authenticate(request);
+        return accountService.authenticate(request);
     }
 
     // ---- Protegidos por JWT (clientId vem sempre do token) ----
