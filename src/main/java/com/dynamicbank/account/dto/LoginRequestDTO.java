@@ -1,6 +1,5 @@
 package com.dynamicbank.account.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
@@ -8,9 +7,9 @@ import lombok.Getter;
 public class LoginRequestDTO {
 
     @NotBlank
-    String usernameOrEmail;
+    private String usernameOrEmail;
 
     @NotBlank
-    String password;
+    private String password;
 
 }

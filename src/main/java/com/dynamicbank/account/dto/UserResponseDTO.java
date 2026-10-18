@@ -1,16 +1,20 @@
 package com.dynamicbank.account.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.UUID;
 
+@Getter
 @AllArgsConstructor
 public class UserResponseDTO {
 
-    UUID id;
+    private final UUID id;
 
-    String username;
+    private final String fullName;
 
-    String email;
+    private final String username;
+
+    private final String email;
 
 }

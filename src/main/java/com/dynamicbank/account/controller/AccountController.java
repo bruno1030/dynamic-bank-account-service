@@ -1,31 +1,74 @@
 package com.dynamicbank.account.controller;
 
+import com.dynamicbank.account.dto.AccountSearchResultDTO;
+import com.dynamicbank.account.dto.AuthResponseDTO;
+import com.dynamicbank.account.dto.BalanceResponseDTO;
 import com.dynamicbank.account.dto.CreateAccountRequestDTO;
 import com.dynamicbank.account.dto.LoginRequestDTO;
-import com.dynamicbank.account.dto.UserResponseDTO;
+import com.dynamicbank.account.dto.SearchAccountsRequestDTO;
+import com.dynamicbank.account.dto.UpdateBalancesRequestDTO;
+import com.dynamicbank.account.service.AccountService;
 import com.dynamicbank.account.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
 
-    private final UserService service;
+    private final UserService userService;
+    private final AccountService accountService;
 
-    public AccountController(UserService service) {
-        this.service = service;
+    public AccountController(UserService userService, AccountService accountService) {
+        this.userService = userService;
+        this.accountService = accountService;
     }
 
-    @PostMapping
+    // ---- Públicos (sem JWT) ----
+
+    @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO createAccount(@Valid @RequestBody CreateAccountRequestDTO request) {
-        return service.create(request);
+    public AuthResponseDTO createAccount(@Valid @RequestBody CreateAccountRequestDTO request) {
+        return userService.create(request);
     }
 
     @PostMapping("/login")
-    public UserResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
-        return service.authenticate(request);
+    public AuthResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
+        return userService.authenticate(request);
+    }
+
+    // ---- Protegidos por JWT (clientId vem sempre do token) ----
+
+    @GetMapping("/get-saldo")
+    public BalanceResponseDTO getSaldo(@AuthenticationPrincipal Jwt jwt) {
+        return accountService.getBalance(clientIdFrom(jwt));
+    }
+
+    @PostMapping("/delete")
+    public void deleteAccount(@AuthenticationPrincipal Jwt jwt) {
+        accountService.closeAccount(clientIdFrom(jwt));
+    }
+
+    @PostMapping("/get-accounts")
+    public List<AccountSearchResultDTO> getAccounts(@AuthenticationPrincipal Jwt jwt,
+                                                    @Valid @RequestBody SearchAccountsRequestDTO request) {
+        return accountService.searchAccounts(clientIdFrom(jwt), request);
+    }
+
+    // ---- Protegido por API key (validada no filtro de segurança, não aqui) ----
+
+    @PostMapping("/update-saldos")
+    public void updateSaldos(@Valid @RequestBody UpdateBalancesRequestDTO request) {
+        accountService.updateBalances(request);
+    }
+
+    private UUID clientIdFrom(Jwt jwt) {
+        return UUID.fromString(jwt.getSubject());
     }
 }
