@@ -21,14 +21,14 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    // ---- Públicos (sem JWT) ----
-
+    // ---- only available for webapp ----
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponseDTO createAccount(@Valid @RequestBody CreateAccountRequestDTO request) {
         return accountService.create(request);
     }
 
+    // ---- only available for webapp ----
     @PostMapping("/login")
     public AuthResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
         return accountService.authenticate(request);
