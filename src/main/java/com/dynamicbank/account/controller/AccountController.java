@@ -54,6 +54,7 @@ public class AccountController {
 
     // ---- Protegido por API key (validada no filtro de segurança, não aqui) ----
 
+    // ---- only available for TransferService microservice ----
     @PostMapping("/update-saldos")
     public void updateSaldos(@Valid @RequestBody UpdateBalancesRequestDTO request) {
         accountService.updateBalances(request);
