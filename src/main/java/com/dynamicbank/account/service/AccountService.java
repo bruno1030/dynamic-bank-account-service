@@ -38,7 +38,7 @@ public class AccountService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Transactional
+    /*@Transactional
     public AuthResponseDTO create(CreateAccountRequestDTO request) {
         validateAge(request.getBirthDate());
 
@@ -70,7 +70,7 @@ public class AccountService {
 
         return new AuthResponseDTO(token, new UserResponseDTO(
                 client.getId(), client.getFullName(), client.getUsername(), client.getEmail()));
-    }
+    }*/
 
     private void validateAge(LocalDate birthDate) {
         if (Period.between(birthDate, LocalDate.now(clock)).getYears() < MINIMUM_AGE) {

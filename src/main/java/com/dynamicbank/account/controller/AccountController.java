@@ -25,7 +25,8 @@ public class AccountController {
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponseDTO createAccount(@Valid @RequestBody CreateAccountRequestDTO request) {
-        return accountService.create(request);
+        //return accountService.create(request);
+        return null;
     }
 
     // ---- only available for webapp ----
