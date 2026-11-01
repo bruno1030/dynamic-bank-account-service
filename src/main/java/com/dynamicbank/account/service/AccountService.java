@@ -3,11 +3,9 @@ package com.dynamicbank.account.service;
 import com.dynamicbank.account.dto.*;
 import com.dynamicbank.account.model.Account;
 import com.dynamicbank.account.model.AccountStatus;
-import com.dynamicbank.account.model.Client;
 import com.dynamicbank.account.repository.AccountRepository;
 import com.dynamicbank.account.repository.UserRepository;
 import jakarta.validation.Valid;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -73,7 +71,7 @@ public class AccountService {
     }*/
 
     private void validateAge(LocalDate birthDate) {
-        if (Period.between(birthDate, LocalDate.now(clock)).getYears() < MINIMUM_AGE) {
+        if (Period.between(birthDate, LocalDate.now()).getYears() < MINIMUM_AGE) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Idade mínima de 18 anos");
         }
     }
