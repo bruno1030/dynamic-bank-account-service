@@ -21,7 +21,8 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    // ---- only available for webapp ----
+    // Endpoint disponivel apenas para a WebApp.
+    // Validacao via API key, feita pelo filtro de seguranca, nao aqui.
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponseDTO createAccount(@Valid @RequestBody CreateAccountRequestDTO request) {
@@ -29,7 +30,8 @@ public class AccountController {
         return null;
     }
 
-    // ---- only available for webapp ----
+    // Endpoint disponivel apenas para a WebApp.
+    // Validacao via API key, feita pelo filtro de seguranca, nao aqui.
     @PostMapping("/login")
     public AuthResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
         return accountService.authenticate(request);
@@ -53,9 +55,8 @@ public class AccountController {
         return accountService.searchAccounts(clientIdFrom(jwt), request);
     }
 
-    // ---- Protegido por API key (validada no filtro de segurança, não aqui) ----
-
-    // ---- only available for TransferService microservice ----
+    // Endpoint disponivel apenas para o microservico TransferService.
+    // Validacao via API key, feita pelo filtro de seguranca, nao aqui.
     @PostMapping("/update-saldos")
     public void updateSaldos(@Valid @RequestBody UpdateBalancesRequestDTO request) {
         accountService.updateBalances(request);
