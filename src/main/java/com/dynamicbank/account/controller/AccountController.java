@@ -26,8 +26,7 @@ public class AccountController {
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponseDTO createAccount(@Valid @RequestBody CreateAccountRequestDTO request) {
-        //return accountService.create(request);
-        return null;
+        return accountService.create(request);
     }
 
     // Endpoint disponivel apenas para a WebApp.

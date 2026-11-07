@@ -3,9 +3,12 @@ package com.dynamicbank.account.service;
 import com.dynamicbank.account.dto.*;
 import com.dynamicbank.account.model.Account;
 import com.dynamicbank.account.model.AccountStatus;
+import com.dynamicbank.account.model.Client;
 import com.dynamicbank.account.repository.AccountRepository;
 import com.dynamicbank.account.repository.UserRepository;
+import com.dynamicbank.account.security.JwtTokenService;
 import jakarta.validation.Valid;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -29,22 +33,28 @@ public class AccountService {
     private static final String ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final SecureRandom RANDOM = new SecureRandom();
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenService jwtTokenService;
+    private static final String DUPLICATE_MESSAGE = "Email ou username já cadastrado";
 
-    public AccountService(AccountRepository accountRepository, UserRepository userRepository, PasswordEncoder passwordEncoder){
+    public AccountService(AccountRepository accountRepository,
+                          UserRepository userRepository,
+                          PasswordEncoder passwordEncoder,
+                          JwtTokenService jwtTokenService){
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenService = jwtTokenService;
     }
 
-    /*@Transactional
+    @Transactional
     public AuthResponseDTO create(CreateAccountRequestDTO request) {
         validateAge(request.getBirthDate());
 
-        String email = request.getEmail().trim().toLowerCase();
+        String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
         String username = request.getUsername().trim();
 
         if (userRepository.existsByEmail(email) || userRepository.existsByUsername(username)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email ou username já cadastrado");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, DUPLICATE_MESSAGE);
         }
 
         Client client = new Client(
@@ -57,18 +67,20 @@ public class AccountService {
         try {
             userRepository.saveAndFlush(client);
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email ou username já cadastrado");
+            // Corrida entre dois cadastros simultâneos: o UNIQUE do banco é a barreira final.
+            throw new ResponseStatusException(HttpStatus.CONFLICT, DUPLICATE_MESSAGE);
         }
 
         Account account = new Account(generateAccountNumber(), client, INITIAL_BALANCE);
         accountRepository.save(account);
 
+        // ToDo - publish the new account on KAFKA
+
         String token = jwtTokenService.generateToken(client);
-        auditEventPublisher.publishAccountOpened(client.getId());
 
         return new AuthResponseDTO(token, new UserResponseDTO(
                 client.getId(), client.getFullName(), client.getUsername(), client.getEmail()));
-    }*/
+    }
 
     private void validateAge(LocalDate birthDate) {
         if (Period.between(birthDate, LocalDate.now()).getYears() < MINIMUM_AGE) {
