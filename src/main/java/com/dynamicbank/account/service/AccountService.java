@@ -1,6 +1,9 @@
 package com.dynamicbank.account.service;
 
 import com.dynamicbank.account.dto.*;
+import com.dynamicbank.account.kafka.AuditEventDTO;
+import com.dynamicbank.account.kafka.AuditProducer;
+import com.dynamicbank.account.kafka.EventTypeEnum;
 import com.dynamicbank.account.model.Account;
 import com.dynamicbank.account.model.AccountStatus;
 import com.dynamicbank.account.model.Client;
@@ -14,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
@@ -28,6 +32,9 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final AuditProducer auditProducer;
+    private final ObjectMapper objectMapper;
+
     private static final BigDecimal INITIAL_BALANCE = new BigDecimal("1000.00");
     private static final int MINIMUM_AGE = 18;
     private static final String ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -37,11 +44,13 @@ public class AccountService {
     private static final String DUPLICATE_MESSAGE = "Email ou username já cadastrado";
 
     public AccountService(AccountRepository accountRepository,
-                          UserRepository userRepository,
+                          UserRepository userRepository, AuditProducer auditProducer, ObjectMapper objectMapper,
                           PasswordEncoder passwordEncoder,
                           JwtTokenService jwtTokenService){
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
+        this.auditProducer = auditProducer;
+        this.objectMapper = objectMapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenService = jwtTokenService;
     }
@@ -74,7 +83,13 @@ public class AccountService {
         Account account = new Account(generateAccountNumber(), client, INITIAL_BALANCE);
         accountRepository.save(account);
 
-        // ToDo - publish the new account on KAFKA
+        String accountNumber = account.getAccountNumber();
+        UUID clientId = account.getClient().getId();
+        AuditEventDTO payloadDto = new AuditEventDTO(accountNumber, clientId, EventTypeEnum.ABERTURA_DE_CONTA);
+        String payloadJson = objectMapper.writeValueAsString(payloadDto);
+
+        // publish message on Kafka topic
+        auditProducer.sendEvent(null, payloadJson);
 
         String token = jwtTokenService.generateToken(client);
 
